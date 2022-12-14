@@ -1,7 +1,11 @@
 import { useState } from "react";
+import "../styles/AddTodo.scss";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const AddTodo = (props) => {
   const { addItem } = props;
+  const [autoFocus, setAutoFocus] = useState(true);
 
   // 사용자 입력을 저장할 객체
   // (id, title, done에 대한 정보를 저장해야해서 객체 형태로!!)
@@ -10,9 +14,14 @@ const AddTodo = (props) => {
   });
 
   const onButtonClick = () => {
-    // props로 받아온 addItem 함수 실행
-    addItem(todoItem); // {title: 'input입력값'}
-    setTodoItem({ title: "" }); // input 초기화
+    if (todoItem.title.trim() === "") {
+      setTodoItem({ ...todoItem, title: "" });
+      return;
+    } else {
+      // props로 받아온 addItem 함수 실행
+      addItem(todoItem); // {title: 'input입력값'}
+      setTodoItem({ title: "" }); // input 초기화
+    }
   };
 
   // Enter 키 입력시 아이템 추가
@@ -30,8 +39,11 @@ const AddTodo = (props) => {
         value={todoItem.title}
         onChange={(e) => setTodoItem({ title: e.target.value })}
         onKeyPress={onEnterKeyPress}
+        autoFocus={autoFocus}
       />
-      <button onClick={onButtonClick}>ADD</button>
+      <button onClick={onButtonClick}>
+        <FontAwesomeIcon icon={faPlus} />
+      </button>
     </div>
   );
 };
