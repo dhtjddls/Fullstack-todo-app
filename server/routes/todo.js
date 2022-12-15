@@ -7,7 +7,9 @@ const { Todo } = require("../models/index");
 // GET: localhost:PORT/todos - show all todos (READ)
 router.get("/todos", async (req, res) => {
   try {
-    let todos = await Todo.findAll();
+    let todos = await Todo.findAll({
+      order: [["id", "desc"]],
+    });
     res.send(todos);
   } catch (err) {
     res.send(err);
