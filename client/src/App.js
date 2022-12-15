@@ -9,10 +9,10 @@ const App = () => {
   const todoId = useRef(4);
 
   useEffect(() => {
-    console.log("start point");
+    console.log("첫 랜더링 완료!");
     const getTodos = async () => {
-      let result = await axios.get("http://localhost:8008/todos");
-      setTodoItems(result.data);
+      let response = await axios.get("http://localhost:8008/todos");
+      setTodoItems(response.data);
     };
     getTodos();
   }, []);
@@ -21,16 +21,21 @@ const App = () => {
   // 상위 컴포넌트(App)은 AddTodo 컴포넌트 접근 가능
   // => App 컴포넌트에 addItem() 함수를 정의하고, 해당 함수를 AddTodo props로 넘겨야 함
   const addItem = async (newItem) => {
-    // newItem - {id: xx, title: xx, done: false}
+    // axios.post(url, data)
+
+    // [Before]
+    // // newItem - {id: xx, title: xx, done: false}
     // newItem.id = todoId.current++; // key를 위한 id 설정
     // newItem.done = false; // done 초기화
-    // 기존 todoItems를 유지하고, 새로운 newItem을 추가
-    // const addTodo = async () => {
-    //   return await axios.post("http://localhost:8008/todo", newItem);
-    // };
-    // const result = addTodo();
-    const result = await axios.post("http://localhost:8008/todo", newItem);
-    setTodoItems([result.data, ...todoItems]); // setTodoItems(todoItems.concat(newItem))
+    // // 기존 todoItems를 유지하고, 새로운 newItem을 추가
+    // setTodoItems([...todoItems, newItem]); // setTodoItems(todoItems.concat(newItem))
+
+    // [After]
+    const response = await axios.post("http://localhost:8008/todo", newItem);
+    // console.log(response.data);
+    // 기존 아이템: ...todoItems
+    // 새로운 아이템: response.data
+    setTodoItems([response.data, ...todoItems]);
   };
 
   // 전체 Todo 리스트(todoItems)는 App 컴포넌트에서 관리하고 있으므로
@@ -47,19 +52,37 @@ const App = () => {
     setTodoItems(newTodoItems);
   };
 
+  // API를 이용해서 update하려면
+  // (1) server/routes/todo.js API를 이용해 서버 데이터를 업데이트 한 후
+  // (2) 변경된 내용을 화면에 다시 출력하는 작업
+  const updateItem = async (targetItem) => {
+    console.log(targetItem);
+    // axios.patch(url, data)
+    await axios.patch(
+      `http://localhost:8008/todo/${targetItem.id}`,
+      targetItem
+    );
+  };
+
   return (
     <div className="App">
-      <header>👍 Nakji Todo App</header>
+      <header>😀 Sean Todo App</header>
       <AddTodo addItem={addItem} />
-      <div className="left-todos">🎉 {todoItems.length} todos</div>
-
+      <div className="left-todos">🚀 {todoItems.length} Todos</div>
       {todoItems.length > 0 ? (
         todoItems.map((item) => {
           // console.log(item); // {id: 1, title: 'My Todo1', done: false}
-          return <Todo key={item.id} item={item} deleteItem={deleteItem} />;
+          return (
+            <Todo
+              key={item.id}
+              item={item}
+              deleteItem={deleteItem}
+              updateItem={updateItem}
+            />
+          );
         })
       ) : (
-        <p className="empty-todos">todo를 추가해 보세용~🙌</p>
+        <p className="empty-todos">Todo를 추가해주세요🔥</p>
       )}
     </div>
   );
